@@ -7,6 +7,7 @@ from torch.utils import data
 from utils import util
 from utils.dataset import Dataset
 from nets import nn
+import os
 
 def learning_rate(args, params):
     def fn(x):
@@ -43,12 +44,12 @@ def train(args, params):
     # EMA
     ema = util.EMA(model) if args.local_rank == 0 else None
 
+    folder_path = "/content/drive/MyDrive/ExLPose_YoloV8/data/images/images"
     filenames = []
-    with open('../Dataset/COCOPose/train2017.txt') as reader:
-        for filename in reader.readlines():
-            filename = filename.rstrip().split('/')[-1]
-            filenames.append('../Dataset/COCOPose/images/train2017/' + filename)
-
+    for filename in os.listdir(folder_path):
+      filename = filename.rstrip().split('/')[-1]
+      if os.path.isfile(os.path.join(folder_path, filename)):
+        filenames.append(os.path.join(folder_path, filename))
     dataset = Dataset(filenames, args.input_size, params, True)
 
     if args.world_size <= 1:
